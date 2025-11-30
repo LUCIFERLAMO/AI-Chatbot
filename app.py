@@ -25,11 +25,14 @@ if prompt:= st.chat_input("Hello there !!"):
 
     st.session_state.history.append({"role":"user","content":prompt})
 
-    with st.spinner("Thinking..."):
-        response = model.generate_content(prompt)
-        ai_reply = response.text
+    with st.chat_message("Assissant"):
+        with st.spinner("Thinking...."):
+            response = model.generate_content(prompt)
+            ai_response =response.text
+            try:
+                st.markdown(ai_response)
+                st.session_state.history.append({"role":"Assistant","content":ai_response})
+            except Exception as e:
+                st.error(f"Error: {e}")
 
-    with st.chat_message("Ai"):
-        st.markdown(ai_reply)
-
-    st.session_state.history.append({"role":"Ai","content":ai_reply})
+    
