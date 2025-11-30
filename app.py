@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 import streamlit as st 
 import google.generativeai as genai
 
+if "history" not in st.session_state:
+    st.session_state.history = [] # adding the notebook to it as to not lose the chat history
+
 load_dotenv()
 
 key = os.getenv("GOOGLE_API_KEY")
@@ -10,14 +13,23 @@ key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key = key)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
-st.title("Genai Chat-Bot")
-st.caption("Made by Rithik shekar c using google gemini 2.5 flash model")
+for message in st.session_state.history:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-prompt =st.text_input("Whats going on your mind , Happy to help you!")
+    
+if prompt:= st.chat_input("Hello there !!"):
 
-st.write ("**User Prompt** : " + prompt)
-if prompt:
-    with st.spinner("Generating response..."):
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    st.session_state.history.append({"role":"user","content":prompt})
+
+    with st.spinner("Thinking..."):
         response = model.generate_content(prompt)
+        ai_reply = response.text
 
-    st.write(f"*AI Response* :  {response.text}*")
+    with st.chat_message("Ai"):
+        st.markdown(ai_reply)
+
+    st.session_state.history.append({"role":"Ai","content":ai_reply})
