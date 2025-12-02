@@ -3,50 +3,82 @@ from dotenv import load_dotenv
 import streamlit as st 
 import google.generativeai as genai
 
+# -------The UI Configuration --------
+st.set_page_config(
+    page_title="Secure_Chat",
+    layout="centered",
+)
+
+# Loading the API_key
 load_dotenv()
-key = os.getenv("GOOGLE_API_KEY")
 
-genai.configure(api_key = key)
-model = genai.GenerativeModel("gemini-2.5-flash")
+# ----- Setup and Security -----
 
-st.title("MY Gemini-2.5-Flash Chatbot")
-st.caption("Made by Rithik shekar c")
+sys_prompt = """
+You are a Senior Cybersecurity Expert named Robert.
+1. Answer all questions with a focus on safety and best practices.
+2. If the user asks about illegal hacking, warn them about the legal consequences.
+3. Keep your answers concise and professional.
+"""
 
-#creating the memory 
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+def get_model():
+    return genai.GenerativeModel("gemini-2.5-pro", system_instruction=sys_prompt)
+
+model = get_model()
+
+# ----- Sidebar -----
+
+with st.sidebar:
+    st.title("Control Panel")
+    st.markdown("---")
+    st.write("Security Level : HIGH")
+    st.write("Model : Gemini 2.5 Pro")
+
+    # ----- The nuke button -----
+
+    if st.button("Clear chat history "):
+        st.session_state.chat = model.start_chat(history=[])
+        st.rerun()
+
+    st.markdown("---")
+    st.caption("Built by RITHIK SHEKAR C ")
+    st.caption("2025 secure AI System")
+
+# ----- Main Chat Logic -----
+
+ #Initializing the chat session
 
 if "chat" not in st.session_state:
-    st.session_state.chat = model.start_chat(history=[]) # It wont forget previous messages "history=[]" gemnin object 
+    st.session_state.chat = model.start_chat(history=[])
 
-# Display the chat messages 
+st.title("Secure AI Chat System")
 
-for message in st.session_state.chat.history:   # Google uses 'role': 'user' or 'model'. Streamlit needs 'user' or 'assistant'.
-    role ="user" if message.role == "user" else "Assissant" 
+ # Display chat messages from history on app rerun
+
+for message in st.session_state.chat.history:
+    role = "User" if message.role == "user" else "Assistant"
     with st.chat_message(role):
-        st.markdown(message.parts[0].text) # Display the text part of the message 
+        st.markdown(message.parts[0].text)
 
-# Message(
-#     role="user",
-#     parts=[
-#         Part(text="Hello there")  # message.parts[0]
-#         Part(text="How are you?") # message.parts[1]
-#     ]
-# )
-# """" comment """" streamlit cant display multiple parts 
- 
+ # Accepting user input
+
+if prompt := st.chat_input("What's Going on in your mind ?"):
+    # Display user message in chat message container
     
-if prompt:= st.chat_input("Whats there on your mind?"):
-
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    with st.chat_message("Assissant"):
-        with st.spinner("Thinking...."):
-            try:
-                response = st.session_state.chat.send_message(prompt)
-                ai_response =response.text
-                st.markdown(ai_response)
-                
-            except Exception as e:
-                st.error(f"Error: {e}")
+    with st.chat_message("assistant"):
+        with st.spinner("Loading..."):
 
-    
+            # Get the response from the model
+            try:
+                result = st.session_state.chat.send_message(prompt)
+                respond = result.text
+                st.markdown(respond)
+
+            except Exception as e:
+                print(f"Error as {e}")
+
