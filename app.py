@@ -46,6 +46,15 @@ with st.sidebar:
     st.caption("Built by RITHIK SHEKAR C ")
     st.caption("2025 secure AI System")
 
+# ----- Input Sanitazion -----
+
+def Sanitazion(User_text):
+    Blocked_terms = ["ignore all instructions" , "system override" , "delete database" ,"no limits"]
+    for term in Blocked_terms:
+        if term in User_text.lower():
+            return False
+    return True 
+
 # ----- Main Chat Logic -----
 
  #Initializing the chat session
@@ -70,15 +79,19 @@ if prompt := st.chat_input("What's Going on in your mind ?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        with st.spinner("Loading..."):
+    if not Sanitazion(prompt):
+        with st.chat_message("assistant"):
+            st.error("Blocked: sensitive or unsafe content detected")
+    else:
+        with st.chat_message("assistant"):
+            with st.spinner("Loading..."):
 
-            # Get the response from the model
-            try:
-                result = st.session_state.chat.send_message(prompt)
-                respond = result.text
-                st.markdown(respond)
+                # Get the response from the model
+                try:
+                    result = st.session_state.chat.send_message(prompt)
+                    respond = result.text
+                    st.markdown(respond)
 
-            except Exception as e:
-                print(f"Error as {e}")
+                except Exception as e:
+                    print(f"Error as {e}")
 
