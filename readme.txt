@@ -10,7 +10,7 @@ A context-aware AI assistant designed with a "Security First" architecture. This
 
 ### 🧠 Intelligent Core
 - Context Awareness: Unlike basic scripts, this bot uses Session State to remember previous turn-by-turn conversations, mimicking a real human interaction.
-- AI Engine: Powered by **Google Gemini 1.5 Flash** for rapid, coherent responses.
+- AI Engine: Powered by **Google Gemini 2.5 Pro** for rapid, coherent responses.
 
 ### 💻 Professional UI
 - Dark Mode Interface: A clean, hacker-style aesthetic.
